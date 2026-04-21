@@ -7,7 +7,7 @@ langgraph
 langchain-openai
 xgboost
 shap
-tensorflow
+tensorflow-cpu==2.13.0
 scikit-learn
 python-dotenv
 websockets
