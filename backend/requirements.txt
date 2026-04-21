@@ -2,7 +2,7 @@ fastapi
 uvicorn
 yfinance
 pandas
-pandas-ta
+pandas-ta==0.3.14b0
 langgraph
 langchain-openai
 xgboost
