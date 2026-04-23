@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-yfinance
-pandas
-ta
+fastapi==0.110.0
+uvicorn==0.29.0
+yfinance==0.2.40
+pandas==2.2.2
+ta==0.11.0
 langgraph
 langchain-openai
 xgboost
@@ -11,10 +11,10 @@ tensorflow==2.13.0
 scikit-learn
 python-dotenv
 websockets
-PyPortfolioOpt
+PyPortfolioOpt==1.5.5
 PyGAD
-httpx
-numpy
+httpx==0.27.0
+numpy==1.26.4
 requests
 beautifulsoup4
 textblob
