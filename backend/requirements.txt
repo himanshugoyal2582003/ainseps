@@ -2,12 +2,12 @@ fastapi
 uvicorn
 yfinance
 pandas
-pandas-ta
+git+https://github.com/twopirllc/pandas-ta.git
 langgraph
 langchain-openai
 xgboost
 shap
-tensorflow
+tensorflow==2.13.0
 scikit-learn
 python-dotenv
 websockets
