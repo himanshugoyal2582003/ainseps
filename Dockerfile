@@ -1,22 +1,23 @@
-# Use Python 3.10 (compatible with TensorFlow)
+# Use Python 3.10
 FROM python:3.10
 
-# Set working directory
 WORKDIR /app
 
+# 🔥 Install git (MUST be before pip install)
 RUN apt-get update && apt-get install -y git
 
-# Copy backend code
+# Copy only requirements first (better caching)
+COPY backend/requirements.txt .
+
+# Upgrade pip + install deps
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+# Copy rest of backend
 COPY backend/ .
 
-# Upgrade pip
-RUN pip install --upgrade pip
-
-# Install dependencies
-RUN pip install -r requirements.txt
-
-# Expose port (Render uses 10000 internally)
+# Expose port
 EXPOSE 10000
 
-# Start FastAPI app
+# Run app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000"]
