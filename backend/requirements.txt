@@ -3,12 +3,12 @@ uvicorn==0.29.0
 yfinance==0.2.40
 pandas==2.2.2
 ta==0.11.0
-langgraph
-langchain-openai
-xgboost
-shap
+langgraph==0.0.40
+langchain-openai==0.1.7
+xgboost==2.0.3
+shap==0.45.0
 tensorflow==2.13.0
-scikit-learn
+scikit-learn==1.4.2
 python-dotenv
 websockets
 PyPortfolioOpt==1.5.5
