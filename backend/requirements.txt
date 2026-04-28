@@ -14,7 +14,7 @@ websockets
 PyPortfolioOpt==1.5.5
 PyGAD
 httpx==0.27.0
-numpy==1.26.4
+numpy==1.24.3
 requests
 beautifulsoup4
 textblob
