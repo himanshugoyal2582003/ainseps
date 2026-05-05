@@ -320,7 +320,7 @@ export default function Dashboard() {
           <AnimatePresence mode="wait">
             <motion.div key={`chart-${animTick}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[380px]">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={380}>
                   <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                     <defs>
                       <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
@@ -419,7 +419,7 @@ export default function Dashboard() {
                 <p className="text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Actual vs Predicted (back-test)</p>
                 <div className="h-[120px]">
                   {isMounted && (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={120}>
                       <ComposedChart data={acc.comparison.slice(-20)} margin={{ top:0, right:0, left:0, bottom:0 }}>
                         <XAxis dataKey="date" hide />
                         <YAxis domain={['auto','auto']} hide />

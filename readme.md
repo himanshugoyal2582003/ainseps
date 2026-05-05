@@ -103,7 +103,13 @@ Navigate to the root directory and install the required Python packages:
 ```bash
 # Optional: Create a virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# On Mac/Linux:
+source .venv/bin/activate
+cd ..
+
+# On Windows (PowerShell):
+.\.venv\Scripts\activate
 cd ..
 
 # Install dependencies
@@ -122,6 +128,11 @@ cd frontend
 
 # Install Node modules
 npm install
+
+# Create environment file (.env.local)
+echo NEXT_PUBLIC_API_IP= <ip address of backend server> > .env.local
+
+its look like NEXT_PUBLIC_API_IP=<ip address of backend server>
 
 # Start the Next.js server
 npm run dev
