@@ -20,3 +20,8 @@ beautifulsoup4
 textblob
 fake-useragent
 lxml
+pymongo
+dnspython
+certifi
+reportlab
+

@@ -9,6 +9,8 @@ from .agents.sentiment_agent import SentimentAgent
 import json
 import asyncio
 
+from .telegram_bot import TelegramBot, bot_instance
+
 app = FastAPI(title="AI Stock Prediction System")
 
 app.add_middleware(
@@ -19,11 +21,94 @@ app.add_middleware(
 )
 
 predictor_graph = StockPredictorGraph()
+telegram_task = None
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Launches the Telegram Bot long-polling loop when FastAPI starts."""
+    global telegram_task
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if token:
+        print("[FastAPI] Launching Telegram Bot in background...")
+        telegram_task = asyncio.create_task(bot_instance.start())
+    else:
+        print("[FastAPI] TELEGRAM_BOT_TOKEN not found, skipping Telegram Bot startup.")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stops the Telegram Bot on FastAPI shutdown."""
+    if bot_instance:
+        await bot_instance.stop()
 
 
 @app.get("/")
 def read_root():
-    return {"message": "AI Stock Prediction System Backend Running"}
+    return {
+        "message": "AI Stock Prediction System Backend Running",
+        "telegram_bot": "t.me/ainsep_bot",
+        "telegram_status": "online" if bot_instance.running else "offline",
+    }
+
+
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from .services.pdf_generator import PDFReportGenerator
+from .services.db_service import db_service
+
+
+class TelegramLinkRequest(BaseModel):
+    phone_or_account: str
+    chat_id: int = 0
+    stocks: list = []
+
+
+@app.get("/download-pdf/{ticker}")
+async def download_stock_pdf(ticker: str):
+    """
+    Generates and downloads a dedicated stock-wise executive PDF summary
+    for RELIANCE, HDFCBANK, INFY, TATASTEEL, or any equity symbol.
+    """
+    clean_t = ticker.upper().replace(".NS", "").replace(".BO", "")
+    pdf_filepath = await asyncio.to_thread(PDFReportGenerator.generate_single_stock_pdf, clean_t)
+    return FileResponse(
+        path=pdf_filepath,
+        filename=f"AINSEPS_{clean_t}_Summary.pdf",
+        media_type="application/pdf"
+    )
+
+
+@app.post("/telegram/link-account")
+async def link_telegram_account(req: TelegramLinkRequest):
+    """
+    Links a user's Telegram phone number or account ID from the Web App frontend to MongoDB.
+    """
+    phone = req.phone_or_account.strip()
+    chat_id = req.chat_id or hash(phone) % 100000000
+    user_doc = db_service.get_or_create_user(chat_id, username=phone, full_name=f"User ({phone})")
+    
+    if req.stocks:
+        for st in req.stocks:
+            db_service.add_to_watchlist(chat_id, st)
+
+    # If active bot instance, notify
+    if bot_instance and bot_instance.running and req.chat_id:
+        asyncio.create_task(
+            bot_instance.send_message(
+                req.chat_id,
+                f"✅ <b>Telegram Account Linked Successfully!</b>\nPhone/Account: <b>{phone}</b>\nYour website portfolio and alerts are now synced!"
+            )
+        )
+
+    return {
+        "status": "linked",
+        "phone_or_account": phone,
+        "chat_id": chat_id,
+        "message": "Telegram account linked successfully to AINSEPS system."
+    }
+
+
 
 
 @app.get("/predict/{ticker}")

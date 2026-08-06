@@ -141,6 +141,36 @@ npm run dev
 
 ---
 
+### 4. Telegram Bot Setup (`t.me/ainsep_bot`)
+You can interact with the system directly through Telegram!
+
+```bash
+# Set your bot token in .env (already configured):
+TELEGRAM_BOT_TOKEN=8561210253:AAGKMYF8JAepMsD47j3OdY3bYmoGQhNZwhs
+
+# Run the Telegram Bot independently:
+python run_telegram_bot.py
+```
+*Note: Starting the FastAPI backend (`python -m uvicorn backend.main:app --port 8000`) will also automatically launch the Telegram Bot in the background!*
+
+**Bot Features & Commands on Telegram (`@ainsep_bot`):**
+- 💼 `/portfolio` - View & manage your stock watchlist stored in MongoDB.
+- ➕ `/watch <ticker>` - Add stock to your account portfolio watchlist.
+- ❌ `/unwatch <ticker>` - Remove stock from portfolio watchlist.
+- 📄 `/pdf` - Generate & download Daily PDF Stock Intelligence Report.
+- 📰 `/news <ticker>` - Scraped news with **Impact Rating** (High/Medium/Low) & **Stock Trend Direction** (Improve 🟢 vs Fall 🔴).
+- 🤖 `/agent <ticker>` - Run full Multi-Agent prediction graph (Technical + Sentiment + Risk).
+- ⚠️ `/alert <ticker> <limit>` - Set price fall warning threshold (e.g. `/alert RELIANCE 2850`).
+- 📋 `/alerts` - View & manage active price fall warning alerts.
+- 📈 `/forecast <ticker>` - 30-day XGBoost machine learning price forecast.
+- 📊 `/stock <ticker>` - Real-time stock quote & day high/low/volume.
+- 🎯 Interactive Stock Picker buttons & alert controls for popular equities.
+
+
+
+
+---
+
 ## 📚 Comprehensive Documentation
 
 For a deep dive into the theoretical framework, algorithmic design, and architectural decisions behind this project, please refer to the markdown files in the `docs/` folder:

@@ -6,7 +6,9 @@ import {
   Search, Loader2, PieChart as PieChartIcon, Newspaper,
   ExternalLink, ThumbsUp, ThumbsDown, Minus, RefreshCw,
   Target, Zap, BarChart2, CheckCircle2, AlertTriangle,
+  FileText, Send, Smartphone,
 } from 'lucide-react';
+
 import {
   ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis,
   Tooltip, CartesianGrid, ReferenceLine, Legend, AreaChart,
@@ -143,10 +145,32 @@ export default function Dashboard() {
   const [lastRefresh,    setLastRefresh]    = useState('');
   const [animTick,       setAnimTick]       = useState(0); // drives live chart anim
   const [isMounted,      setIsMounted]      = useState(false);
+  const [telegramAccount, setTelegramAccount] = useState('');
+  const [isLinking,       setIsLinking]       = useState(false);
+  const [linkSuccess,     setLinkSuccess]     = useState('');
+
+  const handleLinkTelegram = async () => {
+    if (!telegramAccount) return;
+    setIsLinking(true);
+    try {
+      const res = await fetch(`http://${API_IP}:8000/telegram/link-account`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_or_account: telegramAccount, stocks: [selectedStock.symbol] }),
+      });
+      const data = await res.json();
+      setLinkSuccess(`✓ Account ${data.phone_or_account} linked! Telegram alerts & daily PDFs active on @ainsep_bot.`);
+    } catch (e) {
+      setLinkSuccess('❌ Connection error. Check server status.');
+    } finally {
+      setIsLinking(false);
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
 
   const logEndRef   = useRef<HTMLDivElement>(null);
   const refreshRef  = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -281,8 +305,53 @@ export default function Dashboard() {
             {isAnalyzing ? <Loader2 className="animate-spin w-4 h-4" /> : <Brain className="w-4 h-4" />}
             {isAnalyzing ? 'Analyzing…' : 'Run Agents'}
           </button>
+          <a
+            href={`http://${API_IP}:8000/download-pdf/${selectedStock.symbol}`}
+            download={`AINSEPS_${selectedStock.symbol}_Summary.pdf`}
+            target="_blank"
+            rel="noreferrer"
+            className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 transition rounded-lg font-semibold flex items-center gap-2 text-xs text-white shadow-lg border border-red-500/20 whitespace-nowrap"
+            title={`Download Stock-Wise PDF Report for ${selectedStock.name}`}
+          >
+            <FileText className="w-4 h-4" />
+            Stock PDF Summary
+          </a>
         </div>
       </header>
+
+      {/* ── Telegram Account Connection Bar ── */}
+      <div className="glass p-3.5 rounded-xl flex flex-col md:flex-row items-center justify-between gap-3 border border-blue-500/20 bg-gradient-to-r from-blue-950/30 via-indigo-950/20 to-purple-950/30">
+        <div className="flex items-center gap-2.5 text-xs">
+          <Smartphone className="w-4 h-4 text-blue-400 shrink-0" />
+          <div>
+            <span className="text-gray-200 font-semibold">Connect Telegram Account (by Phone Number / Username):</span>
+            <p className="text-gray-400 text-[11px]">Receive stock-wise daily PDF reports & instant warning alerts on <b>@ainsep_bot</b></p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="Phone Number (e.g. +91 9876543210 or @user)"
+            value={telegramAccount}
+            onChange={e => setTelegramAccount(e.target.value)}
+            className="glass px-3 py-1.5 text-xs rounded-lg outline-none bg-black/50 text-white w-full md:w-64 border border-white/10 focus:border-blue-400 transition"
+          />
+          <button
+            onClick={handleLinkTelegram}
+            disabled={isLinking || !telegramAccount}
+            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 transition rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50 shadow-md"
+          >
+            {isLinking ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
+            Link Account
+          </button>
+        </div>
+      </div>
+      {linkSuccess && (
+        <div className="text-xs text-emerald-400 font-medium px-3 py-2 bg-emerald-950/50 border border-emerald-500/30 rounded-lg flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {linkSuccess}
+        </div>
+      )}
+
 
       {/* ── Row 1: Main Combined Chart ── */}
       <section className="glass p-6 relative overflow-hidden">
